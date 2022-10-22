@@ -1,12 +1,14 @@
 import markup from '../js/templates/markup.hbs';
 import { apiPixabay } from '../js/apiPixabay';
-// import SimpleLightbox from 'simplelightbox';
-// import 'simplelightbox/dist/simple-lightbox.min.css';
+import Notiflix from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const form = document.querySelector('.search-form');
 const button = document.querySelector('button');
 const conteiner = document.querySelector('.gallery');
 const guard = document.querySelector('.guard');
+const input = document.querySelector('input');
 
 let page = 1;
 let options = {
@@ -21,14 +23,25 @@ form.addEventListener('submit', onButtonClick);
 
 function onButtonClick(evt) {
   evt.preventDefault();
-  inputData = evt.target.elements.searchQuery.value;
-  // if (inputData === '') {
-  //   removeAllChildNodes(conteiner);
-  //   return;
-  // }
+  page = 1;
+  inputData = evt.target.elements.searchQuery.value.trim().toLowerCase();
+  if (inputData.length < 1) {
+    Notiflix.Notify.failure('The field must not be empty');
+    return;
+  }
 
   apiPixabay(page).then(data => {
-    conteiner.insertAdjacentHTML('beforeend', markup(data.hits));
+    if (data.hits.length === 0) {
+      Notiflix.Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+      return;
+    }
+    conteiner.innerHTML = markup(data.hits);
+    Notiflix.Notify.success(
+      `Hooray! We found ${data.totalHits} totalHits images.`
+    );
+
     observer.observe(guard);
   });
 }
@@ -47,25 +60,32 @@ function onLoad(entries) {
       page += 1;
       apiPixabay(page).then(data => {
         conteiner.insertAdjacentHTML('beforeend', markup(data.hits));
-        if (data.page === data.total / 40) {
-          observer.unobserve();
+        console.log(Math.ceil(data.totalHits / 40));
+        if (page === Math.ceil(data.totalHits / 40)) {
+          Notiflix.Notify.info(
+            'We are sorry, but you reached the end of search results.'
+          );
+          observer.unobserve(guard);
+          return;
         }
       });
     }
   });
 }
-// const imageConteiner = document.querySelector('.gallery__item');
-// imageConteiner.addEventListener('click', onClickImage);
-// const lightbox = new SimpleLightbox('.gallery a', {
-//   captionsData: 'alt',
-//   captionDelay: 250,
-// });
 
-// function onClickImage(evt) {
-//   evt.preventDefault();
-//   if (evt.target.nodeName !== 'IMG') {
-//     return;
-//   }
-// }
+// const imageConteiner = document.querySelector('.photo-card');
+conteiner.addEventListener('click', onClickImage);
+const lightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
+lightbox.refresh();
+
+function onClickImage(evt) {
+  evt.preventDefault();
+  // if (evt.target.nodeName !== 'IMG') {
+  //   return;
+  // }
+}
 
 export { inputData };
