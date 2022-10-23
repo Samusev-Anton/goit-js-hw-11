@@ -46,8 +46,6 @@ function onButtonClick(evt) {
   });
 }
 
-// .catch(Error);
-
 function removeAllChildNodes(conteiner) {
   while (conteiner.firstChild) {
     conteiner.removeChild(conteiner.firstChild);
@@ -73,13 +71,12 @@ function onLoad(entries) {
   });
 }
 
-// const imageConteiner = document.querySelector('.photo-card');
 conteiner.addEventListener('click', onClickImage);
 const lightbox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
   captionDelay: 250,
 });
-lightbox.refresh();
+// lightbox.refresh();
 
 function onClickImage(evt) {
   evt.preventDefault();
