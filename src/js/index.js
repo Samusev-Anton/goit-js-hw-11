@@ -44,6 +44,7 @@ function onButtonClick(evt) {
 
   apiPixabay(page).then(data => {
     if (data.hits.length === 0) {
+      conteiner.innerHTML = '';
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
