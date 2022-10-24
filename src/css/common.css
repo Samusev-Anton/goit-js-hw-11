@@ -18,7 +18,7 @@
 .info {
   display: flex;
   justify-content: space-around;
-  align-items: center;
+  align-items: flex-end;
 }
 
 a {
@@ -31,6 +31,10 @@ p {
 }
 
 .photo-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
   margin-left: auto;
   margin-right: auto;
 }
