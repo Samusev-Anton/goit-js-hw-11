@@ -5,10 +5,8 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const form = document.querySelector('.search-form');
-const button = document.querySelector('button');
 const conteiner = document.querySelector('.gallery');
 const guard = document.querySelector('.guard');
-const input = document.querySelector('input');
 
 let page = 1;
 let options = {
@@ -20,6 +18,20 @@ const observer = new IntersectionObserver(onLoad, options);
 
 let inputData = '';
 form.addEventListener('submit', onButtonClick);
+conteiner.addEventListener('click', onClickImage);
+const lightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
+
+function onClickImage(evt) {
+  evt.preventDefault();
+  if (evt.target.nodeName !== 'IMG') {
+    return;
+  }
+}
+
+// lightbox.refresh();
 
 function onButtonClick(evt) {
   evt.preventDefault();
@@ -38,6 +50,7 @@ function onButtonClick(evt) {
       return;
     }
     conteiner.innerHTML = markup(data.hits);
+    lightbox.refresh();
     Notiflix.Notify.success(
       `Hooray! We found ${data.totalHits} totalHits images.`
     );
@@ -46,19 +59,13 @@ function onButtonClick(evt) {
   });
 }
 
-function removeAllChildNodes(conteiner) {
-  while (conteiner.firstChild) {
-    conteiner.removeChild(conteiner.firstChild);
-  }
-}
-
 function onLoad(entries) {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       page += 1;
       apiPixabay(page).then(data => {
         conteiner.insertAdjacentHTML('beforeend', markup(data.hits));
-        console.log(Math.ceil(data.totalHits / 40));
+        lightbox.refresh();
         if (page === Math.ceil(data.totalHits / 40)) {
           Notiflix.Notify.info(
             'We are sorry, but you reached the end of search results.'
@@ -71,18 +78,10 @@ function onLoad(entries) {
   });
 }
 
-conteiner.addEventListener('click', onClickImage);
-const lightbox = new SimpleLightbox('.gallery a', {
-  captionsData: 'alt',
-  captionDelay: 250,
-});
-// lightbox.refresh();
-
-function onClickImage(evt) {
-  evt.preventDefault();
-  // if (evt.target.nodeName !== 'IMG') {
-  //   return;
-  // }
-}
-
 export { inputData };
+
+// function removeAllChildNodes(conteiner) {
+//   while (conteiner.firstChild) {
+//     conteiner.removeChild(conteiner.firstChild);
+//   }
+// }
